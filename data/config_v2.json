@@ -52,6 +52,7 @@
     "biochemistry",
     "生物信息学",
     "bioinformatics",
+    "bioscience",
     "免疫学",
     "immunology",
     "遗传学",
@@ -146,8 +147,8 @@
   "runtime": {
     "timezone": "Asia/Shanghai",
     "schedule": "FREQ=DAILY;BYHOUR=9;BYMINUTE=0;BYSECOND=0",
-    "last_run": "2026-09-18T10:25:27+00:00",
-    "collection_note": "2026-09-18 云端采集完成：新增 0 条，失效 0 条。"
+    "last_run": "2026-09-18T20:09:53+08:00",
+    "collection_note": "2026-09-18 云端采集完成：3/3 个官方来源成功，新增 3 条，失效 0 条。"
   },
   "zhaopin": {
     "enabled": true,
@@ -161,6 +162,55 @@
   },
   "secrets_dir": "data/secrets",
   "collect_mode": "scheduled-fuzzy-search",
+  "job_sources": [
+    {
+      "id": "angitia-greenhouse",
+      "enabled": true,
+      "kind": "greenhouse",
+      "board": "angitiaincorporatedlimited",
+      "company": "Angitia Biopharmaceuticals（安济盛生物）",
+      "source": "Angitia Greenhouse 官方招聘",
+      "url_prefix": "https://job-boards.greenhouse.io/angitiaincorporatedlimited/jobs"
+    },
+    {
+      "id": "roche-workday",
+      "enabled": true,
+      "kind": "workday",
+      "host": "https://roche.wd3.myworkdayjobs.com",
+      "tenant": "roche",
+      "site": "roche-ext",
+      "queries": [
+        "Guangzhou",
+        "Foshan"
+      ],
+      "public_base": "https://roche.wd3.myworkdayjobs.com/en-US/roche-ext",
+      "url_prefix": "https://roche.wd3.myworkdayjobs.com/en-US/roche-ext/job",
+      "company": "罗氏（Roche）",
+      "source": "Roche Workday 官方招聘"
+    },
+    {
+      "id": "danaher-workday",
+      "enabled": true,
+      "kind": "workday",
+      "host": "https://danaher.wd1.myworkdayjobs.com",
+      "tenant": "danaher",
+      "site": "DanaherJobs",
+      "queries": [
+        "Guangzhou",
+        "Foshan"
+      ],
+      "public_base": "https://danaher.wd1.myworkdayjobs.com/en-US/DanaherJobs",
+      "url_prefix": "https://danaher.wd1.myworkdayjobs.com/en-US/DanaherJobs/job",
+      "company": "丹纳赫（Danaher）",
+      "source": "Danaher Workday 官方招聘",
+      "company_labels": {
+        "Beckman Coulter - Life Sciences": "Beckman Coulter Life Sciences（丹纳赫旗下）",
+        "Sciex": "SCIEX（丹纳赫旗下）",
+        "Molecular Devices": "Molecular Devices（丹纳赫旗下）",
+        "Radiometer": "Radiometer（丹纳赫旗下）"
+      }
+    }
+  ],
   "version": 2,
   "release": {
     "status": "active",
@@ -239,3 +289,4 @@
     "广州 佛山 life science 外企 职位"
   ]
 }
+

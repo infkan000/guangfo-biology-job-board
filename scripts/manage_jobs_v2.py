@@ -50,7 +50,13 @@ def url_key(job):
     url = str(job.get("url") or "").strip()
     if not url:
         return ""
-    return "url:" + re.sub(r"[?#].*$", "", url).rstrip("/")
+    clean_url = re.sub(r"[?#].*$", "", url).rstrip("/")
+    # Workday may add/remove locale and location segments while keeping the
+    # requisition id stable. Use that id so the same role is not duplicated.
+    workday_id = re.search(r"_((?:R\d{6,}|20\d{4}-\d{6}))(?:-\d+)?$", clean_url, re.I)
+    if workday_id:
+        return "workday:" + workday_id.group(1).lower()
+    return "url:" + clean_url
 
 
 def combo_key(job):

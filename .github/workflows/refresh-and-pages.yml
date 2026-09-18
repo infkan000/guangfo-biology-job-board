@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/refresh-and-pages.yml"
+      - "scripts/**"
   schedule:
     - cron: "0 1 * * *"
   workflow_dispatch:

@@ -25,15 +25,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import manage_jobs_v2 as manage_jobs  # noqa: E402
 
 
-FEEDS = [
-    {
-        "kind": "greenhouse",
-        "board": "angitiaincorporatedlimited",
-        "company": "Angitia Biopharmaceuticals（安济盛生物）",
-        "source": "Angitia Greenhouse 官方招聘",
-    }
-]
-
 ROLE_TITLE_TERMS = (
     "scientist", "research", "biology", "biologist", "biotech", "biological",
     "medical", "clinical", "laboratory", "lab ", "quality", "application",
@@ -44,12 +35,17 @@ ROLE_TITLE_TERMS = (
 )
 
 
-def fetch_json(url: str) -> dict:
+def fetch_json(url: str, payload: dict | None = None) -> dict:
+    data = None
+    if payload is not None:
+        data = json.dumps(payload).encode("utf-8")
     request = urllib.request.Request(
         url,
+        data=data,
         headers={
             "User-Agent": "GuangfoBiologyJobBoard/1.0 (+GitHub Actions)",
             "Accept": "application/json",
+            "Content-Type": "application/json",
         },
     )
     with urllib.request.urlopen(request, timeout=30) as response:
@@ -78,6 +74,29 @@ def keyword_hits(text: str, keywords: list[str]) -> list[str]:
     return [term for term in keywords if str(term).lower() in low]
 
 
+def make_summary(body: str, hits: list[str]) -> str:
+    summary = body[:680].rstrip()
+    if len(body) > 680:
+        summary += "…"
+    unique_hits = list(dict.fromkeys(str(hit) for hit in hits))
+    if unique_hits:
+        summary += "\n命中关键词：" + " / ".join(unique_hits[:8]) + "。"
+    return summary
+
+
+def target_city(text: str) -> str:
+    cities = []
+    if re.search(r"广州|Guangzhou|Canton", text, re.I):
+        cities.append("广州")
+    if re.search(r"佛山|Foshan|Fatshan", text, re.I):
+        cities.append("佛山")
+    return " / ".join(cities)
+
+
+def source_key(feed: dict) -> str:
+    return str(feed.get("id") or feed.get("board") or feed.get("tenant") or feed["kind"])
+
+
 def collect_greenhouse(feed: dict, config: dict) -> tuple[list[dict], set[str]]:
     board = feed["board"]
     url = f"https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=true"
@@ -99,16 +118,13 @@ def collect_greenhouse(feed: dict, config: dict) -> tuple[list[dict], set[str]]:
         hits = keyword_hits(f"{title} {body}", keywords)
         if not hits:
             continue
-        summary = body[:680].rstrip()
-        if len(body) > 680:
-            summary += "…"
         jobs.append(
             {
                 "title": title,
                 "company": feed["company"],
                 "city": "广州（黄埔）" if "Guangzhou" in location else location,
                 "salary": "未披露",
-                "summary": summary,
+                "summary": make_summary(body, hits),
                 "source": feed["source"],
                 "url": job_url,
                 "posted_date": iso_date(item.get("first_published")),
@@ -121,26 +137,119 @@ def collect_greenhouse(feed: dict, config: dict) -> tuple[list[dict], set[str]]:
     return jobs, active_urls
 
 
-def expire_missing_greenhouse(active_urls: set[str]) -> int:
+def workday_company(feed: dict, item: dict, detail: dict) -> str:
+    labels = feed.get("company_labels", {})
+    bullet_fields = item.get("bulletFields") or []
+    organization = str((detail.get("hiringOrganization") or {}).get("name") or "")
+    candidates = [str(value) for value in bullet_fields[1:]] + [organization]
+    for candidate in candidates:
+        low = candidate.lower()
+        for needle, company in labels.items():
+            if str(needle).lower() in low:
+                return str(company)
+    return str(feed["company"])
+
+
+def collect_workday(feed: dict, config: dict) -> tuple[list[dict], set[str]]:
+    host = str(feed["host"]).rstrip("/")
+    tenant = str(feed["tenant"])
+    site = str(feed["site"])
+    api_base = f"{host}/wday/cxs/{tenant}/{site}"
+    public_base = str(feed.get("public_base") or f"{host}/{site}").rstrip("/")
+    queries = feed.get("queries") or ["Guangzhou", "Foshan"]
+    keywords = [str(item) for item in config.get("keywords", [])]
+    listings = {}
+
+    for query in queries:
+        offset = 0
+        while True:
+            payload = fetch_json(
+                f"{api_base}/jobs",
+                {"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": query},
+            )
+            page = payload.get("jobPostings") or []
+            for item in page:
+                path = str(item.get("externalPath") or "").strip()
+                if path:
+                    listings[path] = item
+            offset += len(page)
+            if not page or offset >= int(payload.get("total") or 0):
+                break
+
+    jobs = []
+    active_urls = set()
+    for path, item in listings.items():
+        job_url = f"{public_base}{path}"
+        active_urls.add(job_url.rstrip("/"))
+        detail = fetch_json(f"{api_base}{path}")
+        info = detail.get("jobPostingInfo") or {}
+        title = str(info.get("title") or item.get("title") or "").strip()
+        body = plain_text(info.get("jobDescription"))
+        location = str(info.get("location") or item.get("locationsText") or "").strip()
+        city = target_city(" ".join((location, path, body)))
+        if not city:
+            continue
+        if not any(term in title.lower() for term in ROLE_TITLE_TERMS):
+            continue
+        hits = keyword_hits(f"{title} {body}", keywords)
+        if not hits:
+            continue
+        jobs.append(
+            {
+                "title": title,
+                "company": workday_company(feed, item, detail),
+                "city": city,
+                "salary": "未披露",
+                "summary": make_summary(body, hits),
+                "source": feed["source"],
+                "url": job_url,
+                "posted_date": iso_date(info.get("startDate")),
+                "is_foreign": True,
+                "match_score": min(98, 70 + len(set(hits)) * 3),
+                "is_expired": False,
+                "expired_reason": "",
+            }
+        )
+    return jobs, active_urls
+
+
+def expire_missing(feed: dict, active_urls: set[str]) -> int:
     jobs = manage_jobs.load_jobs()
     changed = 0
-    prefix = "https://job-boards.greenhouse.io/angitiaincorporatedlimited/jobs/"
+    dirty = False
+    prefix = str(feed.get("url_prefix") or "").rstrip("/") + "/"
+    if prefix == "/":
+        return 0
+    active_keys = {manage_jobs.url_key({"url": url}) for url in active_urls}
     for job in jobs:
         url = str(job.get("url") or "").split("?", 1)[0].rstrip("/")
-        if url.startswith(prefix) and url not in active_urls and not job.get("is_expired"):
+        if not url.startswith(prefix):
+            continue
+        is_active = manage_jobs.url_key(job) in active_keys
+        if is_active and job.get("is_expired"):
+            job["is_expired"] = False
+            job["expired_reason"] = ""
+            dirty = True
+        elif not is_active and not job.get("is_expired"):
             job["is_expired"] = True
             job["expired_reason"] = "企业官方职位列表已下架"
             changed += 1
-    if changed:
+            dirty = True
+    if dirty:
         manage_jobs.save_jobs(jobs)
     return changed
 
 
-def update_runtime(config: dict, added: int, expired: int, feed_errors: list[str]) -> None:
+def update_runtime(
+    config: dict, added: int, expired: int, successful: int, total: int, feed_errors: list[str]
+) -> None:
     now = datetime.now(timezone.utc).astimezone()
     runtime = config.setdefault("runtime", {})
     runtime["last_run"] = now.replace(microsecond=0).isoformat()
-    status = f"{now:%Y-%m-%d} 云端采集完成：新增 {added} 条，失效 {expired} 条。"
+    status = (
+        f"{now:%Y-%m-%d} 云端采集完成：{successful}/{total} 个官方来源成功，"
+        f"新增 {added} 条，失效 {expired} 条。"
+    )
     if feed_errors:
         status += " 部分公开来源暂时不可用，已保留原数据。"
     runtime["collection_note"] = status
@@ -150,20 +259,34 @@ def update_runtime(config: dict, added: int, expired: int, feed_errors: list[str
 def main() -> int:
     config = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
     collected = []
-    active_greenhouse = set()
+    active_by_feed = {}
     errors = []
-    for feed in FEEDS:
+    feeds = config.get("job_sources") or []
+    successful = 0
+    for feed in feeds:
+        if not feed.get("enabled", True):
+            continue
         try:
             if feed["kind"] == "greenhouse":
                 jobs, active = collect_greenhouse(feed, config)
-                collected.extend(jobs)
-                active_greenhouse.update(active)
+            elif feed["kind"] == "workday":
+                jobs, active = collect_workday(feed, config)
+            else:
+                raise ValueError(f"unsupported source kind: {feed['kind']}")
+            collected.extend(jobs)
+            active_by_feed[source_key(feed)] = (feed, active)
+            successful += 1
         except Exception as exc:  # keep the last valid board when one source is down
-            errors.append(f"{feed.get('board', feed['kind'])}: {exc}")
+            errors.append(f"{source_key(feed)}: {exc}")
 
     added = manage_jobs.add(collected) if collected else 0
-    expired = expire_missing_greenhouse(active_greenhouse) if active_greenhouse else 0
-    update_runtime(config, added, expired, errors)
+    expired = sum(
+        expire_missing(feed, active)
+        for feed, active in active_by_feed.values()
+        if active
+    )
+    enabled_total = sum(1 for feed in feeds if feed.get("enabled", True))
+    update_runtime(config, added, expired, successful, enabled_total, errors)
     manage_jobs.render()
 
     PUBLIC.mkdir(parents=True, exist_ok=True)
