@@ -147,8 +147,8 @@
   "runtime": {
     "timezone": "Asia/Shanghai",
     "schedule": "FREQ=DAILY;BYHOUR=9;BYMINUTE=0;BYSECOND=0",
-    "last_run": "2026-09-18T20:09:53+08:00",
-    "collection_note": "2026-09-18 云端采集完成：3/3 个官方来源成功，新增 3 条，失效 0 条。"
+    "last_run": "2026-09-18T12:17:19+00:00",
+    "collection_note": "2026-09-18 云端采集完成：3/3 个官方来源成功，新增 0 条，失效 0 条。"
   },
   "zhaopin": {
     "enabled": true,
@@ -289,4 +289,3 @@
     "广州 佛山 life science 外企 职位"
   ]
 }
-
