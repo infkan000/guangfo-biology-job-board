@@ -1,3 +1,13 @@
 __pycache__/
 *.py[cod]
 .DS_Store
+
+# Local credentials and session data must never enter the public repository.
+data/secrets/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
