@@ -1,0 +1,242 @@
+{
+  "target": {
+    "roles": [
+      "biology",
+      "neuroscience",
+      "生物学",
+      "神经科学",
+      "生物技术",
+      "生物工程",
+      "生命科学"
+    ],
+    "cities": [
+      "广州",
+      "佛山"
+    ],
+    "industry": "广州 / 佛山外企 · 生物 / Biology / Neuroscience / 生物技术 / 生物工程",
+    "experience": "1-3年",
+    "foreign_only": true,
+    "location_rule": "以岗位实际工作地点为准，必须明确包含广州或佛山；仅公司在当地有业务但岗位地点未明确，不算匹配。",
+    "match_mode": "fuzzy_jd_any_keyword",
+    "match_rule": "岗位名称或 JD 正文任一处命中生物相关关键词即可，不限制具体岗位名称或职能。"
+  },
+  "keywords": [
+    "生物",
+    "biology",
+    "biological",
+    "biologist",
+    "neuroscience",
+    "neuroscientist",
+    "neurobiology",
+    "神经科学",
+    "神经生物学",
+    "生命科学",
+    "life science",
+    "细胞生物学",
+    "cell biology",
+    "分子生物学",
+    "molecular biology",
+    "微生物",
+    "microbiology",
+    "microbiologist",
+    "生物技术",
+    "biotechnology",
+    "biotech",
+    "生物工程",
+    "bioengineering",
+    "生物医学工程",
+    "biomedical engineering",
+    "生物医药",
+    "biopharmaceutical",
+    "生物化学",
+    "biochemistry",
+    "生物信息学",
+    "bioinformatics",
+    "免疫学",
+    "immunology",
+    "遗传学",
+    "genetics",
+    "基因组学",
+    "genomics",
+    "蛋白质",
+    "protein",
+    "细胞培养",
+    "cell culture",
+    "分子实验",
+    "PCR",
+    "qPCR",
+    "ELISA",
+    "Western blot",
+    "流式细胞",
+    "flow cytometry",
+    "发酵",
+    "fermentation",
+    "生物工艺",
+    "bioprocess"
+  ],
+  "platforms": {
+    "综合": [
+      "猎聘",
+      "智联招聘",
+      "前程无忧",
+      "BOSS直聘"
+    ],
+    "垂直": [
+      "丁香人才",
+      "医药英才网",
+      "医脉同道"
+    ],
+    "官网": [
+      "外企官网 careers"
+    ]
+  },
+  "companies": {
+    "外企生命科学与研究服务": [
+      "Thermo Fisher",
+      "赛默飞",
+      "Labcorp",
+      "IQVIA",
+      "艾昆纬",
+      "Parexel",
+      "精鼎",
+      "ICON",
+      "Syneos",
+      "PPD"
+    ],
+    "外企药企": [
+      "Roche",
+      "罗氏",
+      "Novartis",
+      "诺华",
+      "Pfizer",
+      "辉瑞",
+      "MSD",
+      "默沙东",
+      "Johnson & Johnson",
+      "强生",
+      "Bayer",
+      "拜耳",
+      "Sanofi",
+      "赛诺菲",
+      "AstraZeneca",
+      "阿斯利康",
+      "GSK",
+      "葛兰素史克",
+      "Lilly",
+      "礼来",
+      "Novo Nordisk",
+      "诺和诺德",
+      "Takeda",
+      "武田",
+      "AbbVie",
+      "艾伯维",
+      "Boehringer Ingelheim",
+      "勃林格殷格翰",
+      "Amgen",
+      "安进",
+      "Bristol Myers Squibb",
+      "BMS",
+      "百时美施贵宝"
+    ]
+  },
+  "schedule": "每日 09:00（Asia/Shanghai）运行模糊搜索岗位采集",
+  "new_window_hours": 24,
+  "retention_window_hours": 48,
+  "expire_after_days": 60,
+  "runtime": {
+    "timezone": "Asia/Shanghai",
+    "schedule": "FREQ=DAILY;BYHOUR=9;BYMINUTE=0;BYSECOND=0",
+    "last_run": "2026-09-18T17:01:50+08:00",
+    "collection_note": "2026-09-18 云端采集完成：新增 0 条，失效 0 条。"
+  },
+  "zhaopin": {
+    "enabled": true,
+    "city_codes": {
+      "广州": "763",
+      "佛山": "768"
+    },
+    "page_size": 30,
+    "cookie_file": "data/secrets/zhaopin_cookie.json",
+    "note": "city_codes 如与实际接口不一致，请按智联城市 ID 修正；cookie 文件不入库。"
+  },
+  "secrets_dir": "data/secrets",
+  "collect_mode": "scheduled-fuzzy-search",
+  "version": 2,
+  "release": {
+    "status": "active",
+    "automation_enabled": true,
+    "label": "模糊搜索 · 每日采集已启用",
+    "note": "与第一版独立运行；使用第二版配置、岗位库和网页。"
+  },
+  "role_groups": {
+    "生物研发 / 实验": [
+      "生物",
+      "biology",
+      "biologist",
+      "biological",
+      "细胞",
+      "cell",
+      "分子",
+      "molecular",
+      "研究助理",
+      "research assistant",
+      "research associate",
+      "scientist",
+      "研发",
+      "research",
+      "实验",
+      "laboratory",
+      "lab technician"
+    ],
+    "微生物 / 生物工艺": [
+      "微生物",
+      "microbiology",
+      "microbiologist",
+      "发酵",
+      "fermentation",
+      "生物工艺",
+      "bioprocess"
+    ],
+    "生物信息": [
+      "生物信息",
+      "bioinformatics",
+      "computational biology"
+    ],
+    "神经科学 / 脑科学": [
+      "神经科学",
+      "neuroscience",
+      "神经生物学",
+      "neurobiology"
+    ],
+    "应用 / 技术支持": [
+      "应用",
+      "application scientist",
+      "application specialist",
+      "technical support",
+      "技术支持"
+    ],
+    "生物质量检测": [
+      "质量",
+      "quality",
+      "QA",
+      "QC",
+      "检测",
+      "检验"
+    ]
+  },
+  "exclude_title_keywords": [],
+  "company_scope_note": "公司清单为外企检索候选，不代表已确认其当前有广州生物岗位。清单外公司可人工核实外企属性后以 is_foreign=true 导入；地点和岗位内容仍须符合筛选条件。",
+  "paths": {
+    "jobs": "data/jobs_v2.jsonl",
+    "dashboard": "dashboard/index_v2.html"
+  },
+  "search_queries": [
+    "广州 佛山 外企 biology 招聘",
+    "Guangzhou Foshan biology jobs multinational",
+    "广州 佛山 neuroscience 神经科学 招聘 外企",
+    "广州 佛山 生物技术 生物工程 外企 招聘",
+    "Guangzhou Foshan biotechnology bioengineering careers",
+    "广州 佛山 life science 外企 职位"
+  ]
+}
+
