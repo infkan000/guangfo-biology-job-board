@@ -3,6 +3,8 @@ name: Refresh jobs and publish dashboard
 on:
   push:
     branches: [main]
+    paths:
+      - ".github/workflows/refresh-and-pages.yml"
   schedule:
     - cron: "0 1 * * *"
   workflow_dispatch:
