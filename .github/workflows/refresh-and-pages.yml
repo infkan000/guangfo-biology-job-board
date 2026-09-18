@@ -35,6 +35,7 @@ jobs:
           git add data/config_v2.json data/jobs_v2.jsonl dashboard/index_v2.html public/index.html
           if ! git diff --cached --quiet; then
             git commit -m "Refresh job board"
+            git pull --rebase origin main
             git push
           fi
 
