@@ -147,8 +147,8 @@
   "runtime": {
     "timezone": "Asia/Shanghai",
     "schedule": "FREQ=DAILY;BYHOUR=9;BYMINUTE=0;BYSECOND=0",
-    "last_run": "2026-09-21T05:58:45+00:00",
-    "collection_note": "2026-09-21 云端采集完成：3/3 个官方来源成功，新增 0 条，失效 1 条。"
+    "last_run": "2026-09-22T05:55:23+00:00",
+    "collection_note": "2026-09-22 云端采集完成：3/3 个官方来源成功，新增 0 条，失效 0 条。"
   },
   "zhaopin": {
     "enabled": true,
